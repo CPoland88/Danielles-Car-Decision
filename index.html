@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Used Tesla Question — A Craig Conversation</title>
+<style>
+  :root{
+    --ink:#1c2321;        /* deep charcoal-green */
+    --paper:#f3efe6;      /* warm paper */
+    --card:#fbf9f4;
+    --line:#d6cfc0;
+    --signal:#c25b3a;     /* burnt orange, the "spend" color */
+    --good:#2f6e54;       /* forest green, the "save" color */
+    --muted:#6f6a5f;
+    --accent:#3a5a78;     /* slate blue for tesla/ev */
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 30px rgba(28,35,33,.06);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    line-height:1.55;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+  .mono{font-family:"SF Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace}
+
+  /* ---- hero ---- */
+  header.hero{padding:64px 0 38px;border-bottom:2px solid var(--ink)}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;
+    text-transform:uppercase;color:var(--signal);font-weight:700;margin:0 0 18px}
+  h1{font-size:clamp(2.1rem,5.6vw,3.7rem);line-height:1.02;margin:0;font-weight:600;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--accent)}
+  .dek{font-size:1.12rem;color:var(--muted);max-width:60ch;margin:20px 0 0}
+  .sig{margin-top:26px;font-size:.85rem;color:var(--muted);font-style:italic;border-left:3px solid var(--signal);padding-left:14px}
+
+  section{padding:46px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:1.7rem;margin:0 0 6px;font-weight:600;letter-spacing:-.01em}
+  .lead{color:var(--muted);margin:0 0 26px;max-width:64ch}
+  h3{font-size:1.05rem;margin:0 0 12px;font-weight:600}
+
+  /* ---- controls ---- */
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:26px 34px}
+  @media(max-width:680px){.controls{grid-template-columns:1fr}}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+  .field .val{font-family:var(--mono);font-size:1.05rem;color:var(--ink);font-weight:700;letter-spacing:0}
+  input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;
+    background:var(--line);border-radius:2px;outline:none;margin:8px 0 2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--signal);cursor:pointer;border:3px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--signal);
+    cursor:pointer;border:3px solid var(--card)}
+  .seg{display:flex;gap:0;border:1px solid var(--ink);border-radius:6px;overflow:hidden;width:fit-content}
+  .seg button{font-family:inherit;font-size:.9rem;padding:8px 16px;background:var(--card);border:none;
+    cursor:pointer;color:var(--ink);border-right:1px solid var(--ink)}
+  .seg button:last-child{border-right:none}
+  .seg button.on{background:var(--ink);color:var(--paper)}
+  .hint{font-size:.78rem;color:var(--muted);margin-top:6px;font-style:italic}
+
+  /* ---- cpo toggle ---- */
+  .toggle-field{grid-column:1/-1;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .switch{position:relative;display:inline-block;width:52px;height:30px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .slider-sw{position:absolute;cursor:pointer;inset:0;background:var(--line);border-radius:30px;transition:.2s}
+  .slider-sw:before{content:"";position:absolute;height:22px;width:22px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  .switch input:checked + .slider-sw{background:var(--accent)}
+  .switch input:checked + .slider-sw:before{transform:translateX(22px)}
+  .toggle-field .tl{font-size:.95rem;font-weight:600}
+  .toggle-field .td{font-size:.8rem;color:var(--muted);margin-top:2px}
+
+  /* ---- result cards ---- */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+  @media(max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:var(--shadow);position:relative}
+  .card .tag{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+  .card.tesla{border-top:3px solid var(--accent)}
+  .card.used{border-top:3px solid var(--good)}
+  .card.cheap{border-top:3px solid var(--signal)}
+  .card .name{font-weight:600;font-size:1.1rem;margin:0 0 14px}
+  .card .big{font-family:var(--mono);font-size:1.9rem;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .card .biglabel{font-size:.78rem;color:var(--muted);margin:2px 0 16px}
+  .line{display:flex;justify-content:space-between;font-size:.9rem;padding:5px 0;border-bottom:1px dotted var(--line)}
+  .line:last-child{border-bottom:none}
+  .line span:last-child{font-family:var(--mono);font-weight:600}
+  .pos{color:var(--good)} .neg{color:var(--signal)}
+  .pmt-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:12px;border-top:2px solid var(--ink)}
+  .pmt-row .pl{font-size:.82rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+  .pmt-row .pv{font-family:var(--mono);font-size:1.25rem;font-weight:700}
+  .pmt-row .pv small{font-size:.7rem;color:var(--muted);font-weight:400}
+
+  /* ---- takeaway / verdict ---- */
+  .verdict{background:var(--ink);color:var(--paper);border-radius:14px;padding:30px 32px;margin-top:10px}
+  .verdict h3{color:var(--paper);font-size:1.25rem}
+  .verdict p{color:#cdcabf;margin:0 0 12px}
+  .verdict strong{color:#fff}
+  .verdict .pill{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+    text-transform:uppercase;background:var(--signal);color:#fff;padding:4px 12px;border-radius:20px;margin-bottom:14px}
+
+  /* ---- principles list ---- */
+  .principle{display:grid;grid-template-columns:54px 1fr;gap:18px;padding:20px 0;border-bottom:1px solid var(--line)}
+  .principle:last-child{border-bottom:none}
+  .principle .num{font-family:var(--mono);font-size:1.6rem;color:var(--signal);font-weight:700;line-height:1}
+  .principle h4{margin:0 0 5px;font-size:1.08rem}
+  .principle p{margin:0;color:var(--muted);font-size:.95rem}
+
+  .bar-row{display:grid;grid-template-columns:130px 1fr 92px;align-items:center;gap:14px;margin:10px 0}
+  .bar-row .lbl{font-size:.86rem}
+  .bar-track{background:var(--line);border-radius:6px;height:22px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:6px;transition:width .45s cubic-bezier(.2,.7,.2,1)}
+  .bar-row .amt{font-family:var(--mono);font-size:.86rem;text-align:right;font-weight:600}
+
+  /* ---- stacked chart ---- */
+  .stack-wrap{margin:8px 0 6px}
+  .stack-row{display:grid;grid-template-columns:140px 1fr 96px;align-items:center;gap:14px;margin:18px 0}
+  @media(max-width:620px){.stack-row{grid-template-columns:96px 1fr 80px;gap:9px}}
+  .stack-row .slbl{font-size:.9rem;font-weight:600;line-height:1.2}
+  .stack-row .slbl small{display:block;font-weight:400;color:var(--muted);font-size:.74rem}
+  .stack-track{display:flex;height:38px;border-radius:7px;overflow:hidden;background:var(--line)}
+  .seg-block{height:100%;transition:width .5s cubic-bezier(.2,.7,.2,1);position:relative;min-width:0}
+  .stack-row .snet{font-family:var(--mono);font-size:.95rem;text-align:right;font-weight:700}
+  .legend{display:flex;flex-wrap:wrap;gap:14px 22px;margin:24px 0 6px;padding:16px 18px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px}
+  .legend .item{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--ink)}
+  .legend .sw{width:14px;height:14px;border-radius:3px;flex:none}
+  .c-purchase{background:#33414d}
+  .c-interest{background:#7d6b54}
+  .c-fuel{background:#c2823a}
+  .c-ins{background:#a8576b}
+  .c-maint{background:#5b8c7a}
+  .axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.72rem;color:var(--muted);
+    margin:4px 0 0;padding-left:154px}
+  @media(max-width:620px){.axis{padding-left:110px}}
+  .resale-note{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--good);margin-top:6px;font-style:italic}
+
+  /* ---- example listing cards ---- */
+  .examples{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+  @media(max-width:760px){.examples{grid-template-columns:1fr}}
+  a.ex{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:22px;box-shadow:var(--shadow);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+  a.ex:hover,a.ex:focus{transform:translateY(-3px);box-shadow:0 10px 34px rgba(28,35,33,.13);border-color:var(--accent)}
+  a.ex .extag{font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+  a.ex .exname{font-size:1.18rem;font-weight:600;margin:0 0 2px}
+  a.ex .exsub{font-size:.84rem;color:var(--muted);margin:0 0 16px}
+  a.ex .exprice{font-family:var(--mono);font-size:1.7rem;font-weight:700;letter-spacing:-.02em}
+  a.ex .exmi{font-size:.8rem;color:var(--muted);margin:2px 0 14px}
+  a.ex .exgo{font-size:.84rem;font-weight:600;color:var(--accent)}
+  a.ex .exgo::after{content:" →";transition:margin-left .15s ease}
+  a.ex:hover .exgo::after{margin-left:4px}
+
+  /* ---- year guide ---- */
+  .yeargrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  @media(max-width:680px){.yeargrid{grid-template-columns:1fr}}
+  .ycol{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:var(--shadow)}
+  .ycol h3{font-size:1.15rem;margin:0 0 4px}
+  .ycol .sub{font-size:.82rem;color:var(--muted);margin:0 0 16px}
+  .yrow{display:grid;grid-template-columns:74px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:start}
+  .yrow:last-child{border-bottom:none}
+  .yrow .yr{font-family:var(--mono);font-weight:700;font-size:.92rem}
+  .yrow .yd{font-size:.9rem;color:var(--ink)}
+  .yrow .yd small{display:block;color:var(--muted);font-size:.8rem;margin-top:2px}
+  .badge{display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+    padding:2px 7px;border-radius:4px;font-weight:700;vertical-align:middle}
+  .b-avoid{background:#f0d4cc;color:#8a3a23}
+  .b-ok{background:#e6ddc8;color:#7a6a3d}
+  .b-buy{background:#cfe5da;color:#2c6048}
+  .keyline{background:var(--ink);color:var(--paper);border-radius:10px;padding:14px 18px;margin-top:20px;font-size:.92rem}
+  .keyline strong{color:#fff}
+
+  /* ---- incentives ---- */
+  .inc{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+  @media(max-width:760px){.inc{grid-template-columns:1fr}}
+  .inccard{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--maint,#5b8c7a);border-radius:12px;padding:22px;box-shadow:var(--shadow)}
+  .inccard .ibig{font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--good);letter-spacing:-.02em}
+  .inccard h4{margin:6px 0 8px;font-size:1.02rem}
+  .inccard p{margin:0;font-size:.9rem;color:var(--muted)}
+  .inccard a{color:var(--accent);font-size:.84rem;text-decoration:none;border-bottom:1px solid var(--accent);display:inline-block;margin-top:10px}
+
+  footer{padding:40px 0 60px;color:var(--muted);font-size:.85rem}
+  footer .disc{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:var(--card)}
+  .note{font-size:.82rem;color:var(--muted);margin-top:18px;font-style:italic}
+  a.jump{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">A "Craig Financial Advice" Conversation · For Danielle &amp; Sergei</p>
+    <h1>Should you buy a <em>used Tesla</em>?<br>Let's run the numbers.</h1>
+    <p class="dek">You've already made a smart move: finding a 4.50% credit-union loan instead of dealer financing. This walks through what a used Tesla actually costs to own — versus a sensible used gas car — so the decision is about math, not vibes.</p>
+    <p class="sig">The honest answer to "is a used Tesla a good idea?" is almost always: <em>it depends on the price you pay and how long you keep it.</em> Move the sliders below and watch.</p>
+  </div>
+</header>
+
+<!-- ============ CALCULATOR ============ -->
+<section>
+  <div class="wrap">
+    <h2>1 · Build the deal</h2>
+    <p class="lead">Set the purchase price, your down payment, and the loan term. Everything updates live. Defaults are pulled from actual listings near Indian Head, MD (20640) &mdash; see the sourcing note below &mdash; and the mileage is set to Sergei&rsquo;s real commute.</p>
+
+    <div class="controls">
+      <div class="field">
+        <label>Used Tesla price <span class="val" id="vTPrice">$23,000</span></label>
+        <input type="range" id="tPrice" min="11000" max="42000" step="500" value="23000">
+        <div class="hint">Indian Head listings: &rsquo;19 Model 3 ~$12K (92K mi) up to a &rsquo;23 Model 3 ~$18.5K and &rsquo;21 Model Y ~$25.7K. Verify battery health &amp; warranty.</div>
+      </div>
+
+      <div class="field">
+        <label>Comparable gas car price <span class="val" id="vGPrice">$19,500</span></label>
+        <input type="range" id="gPrice" min="12000" max="32000" step="500" value="19500">
+        <div class="hint">Same-vintage Camry/Accord near Indian Head: avg ~$22K (Camry), range ~$17.5K&ndash;$28K. Lower-mileage trims sit around $19&ndash;20K.</div>
+      </div>
+
+      <div class="field">
+        <label>Down payment <span class="val" id="vDown">$9,200</span></label>
+        <input type="range" id="down" min="0" max="15000" step="200" value="9200">
+        <div class="hint">Defaulted to Danielle&rsquo;s $9,200 insurance payout &mdash; cash in hand toward whichever car she chooses.</div>
+      </div>
+
+      <div class="field">
+        <label>Loan APR <span class="val" id="vApr">4.50%</span></label>
+        <input type="range" id="apr" min="3" max="9" step="0.25" value="4.5">
+        <div class="hint">Your credit union offer is 4.50%. Dealers often quote more.</div>
+      </div>
+
+      <div class="field">
+        <label>Loan term</label>
+        <div class="seg" id="termSeg">
+          <button data-t="36">36 mo</button>
+          <button data-t="48" class="on">48 mo</button>
+          <button data-t="60">60 mo</button>
+          <button data-t="72">72 mo</button>
+        </div>
+        <div class="hint">Longer term = lower payment, more interest. Avoid going longer than you'll keep the car.</div>
+      </div>
+
+      <div class="field">
+        <label>Miles you drive / year <span class="val" id="vMiles">18,000</span></label>
+        <input type="range" id="miles" min="5000" max="28000" step="500" value="18000">
+        <div class="hint">Set to Sergei&rsquo;s commute: ~70 mi/day &times; 5 days &times; 52 weeks &asymp; 18,200 mi/yr. This is the daily driver.</div>
+      </div>
+
+      <div class="field">
+        <label>Years you'll keep it <span class="val" id="vYears">6</span></label>
+        <input type="range" id="years" min="3" max="10" step="1" value="6">
+        <div class="hint">EVs pay off the longer you hold them.</div>
+      </div>
+
+      <div class="field">
+        <label>Gas price ($/gal) <span class="val" id="vGas">$4.00</span></label>
+        <input type="range" id="gas" min="2.5" max="5.5" step="0.1" value="4.0">
+        <div class="hint">Home charging assumed ~$0.045/mi for the Tesla.</div>
+      </div>
+
+      <div class="toggle-field">
+        <label class="switch"><input type="checkbox" id="cpo"><span class="slider-sw"></span></label>
+        <div>
+          <div class="tl">Certified pre-owned (CPO) Tesla</div>
+          <div class="td">Adds ~$2,000 to the Tesla price, but extends the warranty and cuts expected repair surprises &mdash; maintenance drops to near-zero. Reflects Tesla&rsquo;s factory-certified program.</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note"><strong>Where the default prices come from:</strong> a June 2026 search of used listings near Indian Head, MD (20640). Local Teslas ranged from a 2019 Model 3 with 92K miles (~$12K) to a 2023 Model 3 (~$18.5K) and a 2021 Model Y (~$25.7K). Comparable gas sedans (2020&ndash;2021 Camry/Accord, similar mileage) averaged around $19&ndash;22K. These are starting points &mdash; replace them with the exact price of any car Sergei is actually looking at.</p>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section>
+  <div class="wrap">
+    <h2>2 · What each option really costs</h2>
+    <p class="lead">"Total cost of ownership" = the cash that leaves your account over the years you keep the car: purchase financing, interest, insurance, maintenance, and fuel or charging &mdash; <em>minus</em> what the car is still worth when you sell it. That last part is the point most people forget, so it's called out in green on every card.</p>
+
+    <div class="cards">
+      <div class="card cheap">
+        <p class="tag">The trap to avoid</p>
+        <p class="name">$9,200 cash car</p>
+        <div class="big neg" id="beaterTotal">—</div>
+        <div class="biglabel">net cost over the period</div>
+        <div class="line"><span>Purchase (whole insurance check)</span><span>$9,200</span></div>
+        <div class="line"><span>Repairs (older, higher miles)</span><span id="beaterRepair">—</span></div>
+        <div class="line"><span>Fuel</span><span id="beaterFuel">—</span></div>
+        <div class="line"><span>Insurance</span><span id="beaterIns">—</span></div>
+        <div class="line"><span class="pos">Worth at the end</span><span class="pos" id="beaterResale">—</span></div>
+        <div class="pmt-row"><span class="pl">Monthly payment</span><span class="pv">$0<small>&nbsp;/mo · paid cash</small></span></div>
+      </div>
+
+      <div class="card used">
+        <p class="tag">The sensible benchmark</p>
+        <p class="name">Used gas sedan</p>
+        <div class="big" id="gasTotal">—</div>
+        <div class="biglabel">net cost over the period</div>
+        <div class="line"><span>Total interest</span><span id="gasInt">—</span></div>
+        <div class="line"><span>Fuel</span><span id="gasFuel">—</span></div>
+        <div class="line"><span>Insurance</span><span id="gasIns">—</span></div>
+        <div class="line"><span>Maintenance</span><span id="gasMaint">—</span></div>
+        <div class="line"><span class="pos">Worth at the end</span><span class="pos" id="gasResale">—</span></div>
+        <div class="pmt-row"><span class="pl">Monthly payment</span><span class="pv" id="gasPmt">—</span></div>
+      </div>
+
+      <div class="card tesla">
+        <p class="tag">The question</p>
+        <p class="name">Used Tesla</p>
+        <div class="big" id="teslaTotal">—</div>
+        <div class="biglabel">net cost over the period</div>
+        <div class="line"><span>Total interest</span><span id="teslaInt">—</span></div>
+        <div class="line"><span>Charging + home charger setup</span><span id="teslaFuel">—</span></div>
+        <div class="line"><span>Insurance</span><span id="teslaIns">—</span></div>
+        <div class="line"><span>Maintenance</span><span id="teslaMaint">—</span></div>
+        <div class="line"><span class="pos">Worth at the end</span><span class="pos" id="teslaResale">—</span></div>
+        <div class="pmt-row"><span class="pl">Monthly payment</span><span class="pv" id="teslaPmt">—</span></div>
+      </div>
+    </div>
+
+    <p class="note">EV insurance runs a bit higher (pricier repairs); EV maintenance runs lower (no oil changes, regen braking spares the pads). The Tesla&rsquo;s charging line includes a <strong>one-time home-charger setup of ~$800</strong> &mdash; about $1,500 to install, less the $700 Maryland rebate. <strong>"Worth at the end"</strong> is the estimated trade-in/resale value after the years you hold it &mdash; real money you get back. The $9,200 cash car is worth roughly nothing by then; that's the hidden cost of buying old and cheap. The bold figure at the bottom of each card is the <strong>monthly loan payment</strong> &mdash; the day-to-day cash-flow number.</p>
+  </div>
+</section>
+
+<!-- ============ HEAD TO HEAD ============ -->
+<section>
+  <div class="wrap">
+    <h2>3 · Where the money actually goes</h2>
+    <p class="lead">Each bar is one car's total spending over the years you keep it, broken into its parts. Same data as the cards above &mdash; but stacked, so you can see <em>why</em> they differ. Watch how the cheap car's bar fills with repairs and fuel, while the Tesla trades a bigger purchase block for thin fuel and maintenance slivers.</p>
+
+    <div class="legend">
+      <div class="item"><span class="sw c-purchase"></span> Purchase price</div>
+      <div class="item"><span class="sw c-interest"></span> Loan interest</div>
+      <div class="item"><span class="sw c-fuel"></span> Fuel / charging</div>
+      <div class="item"><span class="sw c-ins"></span> Insurance</div>
+      <div class="item"><span class="sw c-maint"></span> Maintenance / repairs</div>
+    </div>
+
+    <div class="stack-wrap" id="stackWrap">
+      <div class="stack-row">
+        <div class="slbl">$9,200 cash car<small>spend the check</small></div>
+        <div class="stack-track" id="stackBeater"></div>
+        <div class="snet" id="netBeater">—</div>
+      </div>
+      <div class="stack-row">
+        <div class="slbl">Used gas sedan<small>financed @ CU rate</small></div>
+        <div class="stack-track" id="stackGas"></div>
+        <div class="snet" id="netGas">—</div>
+      </div>
+      <div class="stack-row">
+        <div class="slbl">Used Tesla<small>financed @ CU rate</small></div>
+        <div class="stack-track" id="stackTesla"></div>
+        <div class="snet" id="netTesla">—</div>
+      </div>
+      <div class="axis"><span>$0</span><span id="axisMax">—</span></div>
+      <p class="resale-note">↩ Bars show total <em>spending</em>. The net cost on the right already subtracts what each car is still worth at the end &mdash; the cash car gives almost nothing back.</p>
+    </div>
+
+    <div class="verdict" id="verdict">
+      <span class="pill" id="verdictPill">Verdict</span>
+      <h3 id="verdictHead">—</h3>
+      <p id="verdictBody">—</p>
+      <p id="verdictBreak" style="margin:0"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARYLAND INCENTIVES ============ -->
+<section>
+  <div class="wrap">
+    <h2>4 · Maryland perks that tip the math</h2>
+    <p class="lead">Going electric in Maryland comes with a couple of real offsets the gas car doesn&rsquo;t get. These are reflected in the calculator: the home charger costs about $1,500 to install, and the $700 rebate brings that down to roughly $800 &mdash; which is folded into the Tesla&rsquo;s charging line, not handed back as free money. The cheap overnight charging rate is baked into the per-mile cost.</p>
+
+    <div class="inc">
+      <div class="inccard">
+        <div class="ibig">~$800</div>
+        <h4>Net home-charger cost</h4>
+        <p>A home Level 2 charger runs about $1,500 installed. The Maryland Energy Administration rebate knocks $700 off, leaving roughly $800 out of pocket &mdash; a real one-time cost, now included in the Tesla&rsquo;s charging line.</p>
+        <a href="https://www.tesla.com/support/incentives#Maryland" target="_blank" rel="noopener">Tesla MD incentives →</a>
+      </div>
+
+      <div class="inccard">
+        <div class="ibig">Lower ¢/kWh</div>
+        <h4>EV electricity rates</h4>
+        <p>Potomac Edison and Delmarva Power offer EV-friendly or time-of-use rates &mdash; charge overnight and the per-mile cost drops well below gas.</p>
+        <a href="https://www.tesla.com/support/incentives#Maryland" target="_blank" rel="noopener">See utility programs →</a>
+      </div>
+
+      <div class="inccard">
+        <div class="ibig">Peace of mind</div>
+        <h4>Certified pre-owned</h4>
+        <p>A Tesla CPO car costs a bit more up front but extends the warranty and removes most repair-surprise risk. Flip the CPO toggle in the calculator to see it.</p>
+        <a href="https://www.tesla.com/pre-owned" target="_blank" rel="noopener">Tesla pre-owned →</a>
+      </div>
+    </div>
+
+    <p class="note">Install costs vary with your electrical panel and wiring &mdash; $1,500 is a typical figure, but a long cable run or a panel upgrade can push it higher. Rebate amounts and utility programs change and may have eligibility rules or funding limits, so confirm current terms at the Maryland Energy Administration and with Potomac Edison / Delmarva Power before counting on them. The charger is a one-time setup cost, not annual.</p>
+  </div>
+</section>
+
+<!-- ============ MODEL YEAR GUIDANCE ============ -->
+<section>
+  <div class="wrap">
+    <h2>5 · How old is too old?</h2>
+    <p class="lead">Tesla doesn&rsquo;t do tidy model years &mdash; it changes parts mid-production &mdash; but there&rsquo;s one breakpoint that matters more than any other for a daily driver in a Maryland winter: <strong>the heat pump</strong>. Earlier cars use a resistive heater that's far less efficient in the cold, cutting winter range. That arrived with the 2021 refresh on the Model 3, and was standard from the start on the Model Y (launched 2020). Here's the practical read.</p>
+
+    <div class="yeargrid">
+      <div class="ycol">
+        <h3>Model 3</h3>
+        <p class="sub">One generation, refreshed in waves. The 2021 facelift is the line.</p>
+        <div class="yrow"><div class="yr">2017&ndash;18 <span class="badge b-avoid">Avoid</span></div><div class="yd">Early production. Build-quality and older-computer (MCU) issues.<small>First-run cars; not worth it used today.</small></div></div>
+        <div class="yrow"><div class="yr">2019&ndash;20 <span class="badge b-ok">OK if cheap</span></div><div class="yd">Buyable, but no heat pump, single-pane windows, older interior.<small>The $22,900 listing above is a 2019 &mdash; this tier.</small></div></div>
+        <div class="yrow"><div class="yr">2021 <span class="badge b-buy">The line</span></div><div class="yd">Heat pump, double-pane (quieter) front windows, chrome delete, power trunk.<small>The meaningful upgrade. VIN 10th character &ldquo;M&rdquo; = 2021.</small></div></div>
+        <div class="yrow"><div class="yr">2022 <span class="badge b-buy">Sweet spot</span></div><div class="yd">Peak range of the original generation; early-facelift bugs ironed out.<small>Best blend of price and refinement used.</small></div></div>
+      </div>
+
+      <div class="ycol">
+        <h3>Model Y</h3>
+        <p class="sub">Launched 2020 with a heat pump from day one &mdash; here it's reliability, not features, that sets the line.</p>
+        <div class="yrow"><div class="yr">2020 <span class="badge b-avoid">Caution</span></div><div class="yd">First model year. Highest recall/complaint counts; early heat-pump valve issue.<small>Only with a thorough inspection and the right price.</small></div></div>
+        <div class="yrow"><div class="yr">2021 <span class="badge b-ok">OK if verified</span></div><div class="yd">Better build than 2020, but still a weaker reliability year on independent scoring.<small>The $27,900 listing above is a 2021 &mdash; this tier. Verify recalls + valve fix.</small></div></div>
+        <div class="yrow"><div class="yr">2022 <span class="badge b-buy">Best value</span></div><div class="yd">Factory processes matured; mature heat-pump HVAC; healthy depreciation already taken.<small>The used-buyer&rsquo;s sweet spot in 2026.</small></div></div>
+        <div class="yrow"><div class="yr">2023+ <span class="badge b-buy">Strongest</span></div><div class="yd">Updated cameras, suspension tuning, better reliability scores.<small>Great, but you pay closer to new-car money.</small></div></div>
+      </div>
+    </div>
+
+    <div class="keyline">
+      <strong>The takeaway for these two cars:</strong> the 2019 Model 3 is the cheaper sticker but the older design &mdash; no heat pump means worse winter efficiency on Sergei&rsquo;s long daily commute. The 2021 Model Y has the heat pump and more space, but sits in the Model Y&rsquo;s weakest reliability year, so the certified warranty and a clean recall/valve-fix check matter most there. Neither is disqualifying &mdash; but if budget stretches, a <strong>2022 of either</strong> is the cleaner buy.
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXAMPLE LISTINGS ============ -->
+<section>
+  <div class="wrap">
+    <h2>6 · Two real certified cars Craig found</h2>
+    <p class="lead">These are actual certified pre-owned listings on Tesla.com as of June 2026, pulled together as examples to react to. Tap either card to open the real listing. The colored flag on each reflects the model-year guidance in the section above &mdash; read that before deciding, because the cheaper car here is the older design.</p>
+
+    <div class="examples">
+      <a class="ex" id="ex1" href="https://www.tesla.com/m3/order/5YJ3E1EA8KF413147?range=50&titleStatus=used&redirect=no#overview" target="_blank" rel="noopener">
+        <p class="extag">Certified · lower price · older design</p>
+        <p class="exname">2019 Model 3</p>
+        <p class="exsub">Standard Range · RWD · pre-facelift</p>
+        <div class="exprice">$22,900</div>
+        <p class="exmi">37,000 miles · <strong style="color:var(--signal)">no heat pump</strong> &mdash; pre-2021 design</p>
+        <span class="exgo">Open the Tesla listing</span>
+      </a>
+
+      <a class="ex" id="ex2" href="https://www.tesla.com/my/order/5YJYGDEE6MF193577?range=50&titleStatus=used&redirect=no#overview" target="_blank" rel="noopener">
+        <p class="extag">Certified · more space · newer design</p>
+        <p class="exname">2021 Model Y</p>
+        <p class="exsub">Long Range · AWD · has heat pump</p>
+        <div class="exprice">$27,900</div>
+        <p class="exmi">68,400 miles · heat pump &mdash; verify recalls &amp; valve fix</p>
+        <span class="exgo">Open the Tesla listing</span>
+      </a>
+
+      <a class="ex" id="ex3" href="https://www.tesla.com/pre-owned" target="_blank" rel="noopener">
+        <p class="extag">Browse all certified inventory</p>
+        <p class="exname">Tesla CPO search</p>
+        <p class="exsub">Filter by model, year, price, range</p>
+        <div class="exprice">Live</div>
+        <p class="exmi">See current certified cars and pricing nationwide</p>
+        <span class="exgo">Open Tesla pre-owned</span>
+      </a>
+    </div>
+
+    <p class="note">Listings and prices are live on Tesla.com and change as cars sell. Plug either price into the calculator up top &mdash; and toggle the &ldquo;certified pre-owned&rdquo; switch to see how CPO changes the maintenance picture.</p>
+  </div>
+</section>
+
+<!-- ============ PRINCIPLES ============ -->
+<section>
+  <div class="wrap">
+    <h2>7 · The five things to actually check</h2>
+    <p class="lead">The spreadsheet is the easy part. A used EV has a few specific landmines a used gas car doesn't. Walk this list before signing anything.</p>
+
+    <div class="principle">
+      <div class="num">01</div>
+      <div>
+        <h4>Battery health &amp; warranty</h4>
+        <p>The battery is the engine. Most Teslas carry an 8-year / 100K–120K-mile battery warranty — find out how much is left, because a battery is the one repair that can cost more than the car. Ask for a recent range/health readout and check the in-car battery screen.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="num">02</div>
+      <div>
+        <h4>Charging reality at home</h4>
+        <p>The cheap charging in this calculator assumes home charging. If Sergei would rely on public fast-chargers, running cost climbs and the EV advantage shrinks. A Level 2 home charger runs ~$1,500 installed (~$800 net after the Maryland rebate) &mdash; a one-time cost that&rsquo;s already in the charging line above.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="num">03</div>
+      <div>
+        <h4>Finance the asset, not your patience</h4>
+        <p>Match the loan term to how long you'll keep the car. A 72-month loan on a car you sell in year 4 means owing more than it's worth. Your 4.50% credit-union rate is genuinely good — use it, and keep the term as short as the payment allows.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="num">04</div>
+      <div>
+        <h4>Get the insurance quote first</h4>
+        <p>Before you fall in love with a specific car, get a real insurance quote on it. EV premiums can surprise you. Five minutes now prevents a monthly-budget surprise later.</p>
+      </div>
+    </div>
+    <div class="principle">
+      <div class="num">05</div>
+      <div>
+        <h4>Depreciation already happened — that's the opportunity</h4>
+        <p>The brutal first-owner depreciation on EVs is exactly why a 3–4-year-old used Tesla can be a smart buy: someone else ate the drop. Just don't overpay relative to a comparable gas car, and the math tends to favor holding it a while.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer>
+  <div class="wrap">
+    <div class="disc">
+      <strong>A friendly disclaimer:</strong> This is a planning tool to frame the decision, not formal financial advice, and the figures are reasonable estimates rather than quotes. Confirm real numbers — loan terms, insurance, battery warranty, the specific car's history — before committing. Built as a favor for Danielle &amp; Sergei. Sticker prices, rates, and gas prices change, so treat the outputs as directional.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var state = {term:48};
+  var el = function(id){return document.getElementById(id);};
+  function fmt(n){return '$'+Math.round(n).toLocaleString('en-US');}
+  function fmt0(n){return Math.round(n).toLocaleString('en-US');}
+
+  // monthly payment for an amortizing loan
+  function payment(principal, aprPct, months){
+    var r = (aprPct/100)/12;
+    if(principal<=0) return 0;
+    if(r===0) return principal/months;
+    return principal * r / (1 - Math.pow(1+r, -months));
+  }
+
+  function compute(){
+    var tPrice = +el('tPrice').value;
+    var gPrice = +el('gPrice').value;
+    var down   = +el('down').value;
+    var apr    = +el('apr').value;
+    var months = state.term;
+    var years  = +el('years').value;
+    var miles  = +el('miles').value;
+    var gas    = +el('gas').value;
+    var cpo    = el('cpo').checked;
+
+    // CPO adds ~$2,000 to the Tesla's price (certified premium) but de-risks maintenance
+    var CPO_PREMIUM = 2000;
+    var tPriceEff = tPrice + (cpo ? CPO_PREMIUM : 0);
+
+    // Home Level 2 charger: one-time setup cost (hardware + install), net of the $700 MD rebate.
+    // Typical install runs ~$1,500; the rebate brings the net out-of-pocket down to ~$800.
+    var CHARGER_INSTALL = 1500;
+    var CHARGER_REBATE = 700;
+    var chargerNet = CHARGER_INSTALL - CHARGER_REBATE;   // ~$800 real out-of-pocket
+
+    // financed amounts (down applied to chosen car; can't exceed price)
+    var tDown = Math.min(down, tPriceEff);
+    var gDown = Math.min(down, gPrice);
+    var tPrin = tPriceEff - tDown;
+    var gPrin = gPrice - gDown;
+
+    var tPmt = payment(tPrin, apr, months);
+    var gPmt = payment(gPrin, apr, months);
+    var tInterest = tPmt*months - tPrin;
+    var gInterest = gPmt*months - gPrin;
+
+    // running costs over ownership period
+    // gas car: assume ~28 mpg
+    var mpg = 28;
+    var gasFuel = (miles/mpg)*gas*years;
+    // tesla: home charging ~ $0.045/mi, PLUS one-time net charger setup (~$800 after MD rebate)
+    var teslaEnergy = miles*0.045*years;
+    var teslaFuel = teslaEnergy + chargerNet;   // charging line = energy + net charger install
+
+    // insurance per year
+    var gasInsYr = 1500;
+    var teslaInsYr = 1950;
+    var gasIns = gasInsYr*years;
+    var teslaIns = teslaInsYr*years;
+
+    // maintenance per year
+    var gasMaintYr = 850;
+    // CPO warranty cuts expected repair surprises to near-zero; otherwise normal low EV upkeep (tires, cabin filter, wipers)
+    var teslaMaintYr = cpo ? 120 : 350;
+    var gasMaint = gasMaintYr*years;
+    var teslaMaint = teslaMaintYr*years;
+
+    // ---- resale / retained value at end of hold ----
+    // Declining-balance depreciation. Used cars depreciate slower than new.
+    // Gas sedan (Camry/Accord): famously strong residuals ~ -11%/yr.
+    // Tesla: steeper ~ -15%/yr, but extra mileage penalty since this is a high-mile daily driver.
+    var gasResale = gPrice * Math.pow(0.89, years);
+    var teslaResale = tPriceEff * Math.pow(0.85, years);
+    // high-mileage penalty: anything over 12k/yr knocks a bit extra off (worse for the EV's battery-perceived value)
+    var excessMi = Math.max(0, (miles-12000)*years);
+    teslaResale -= excessMi * 0.05;   // ~5c/excess-mile hit
+    gasResale   -= excessMi * 0.03;   // gas cars penalized less per mile
+    teslaResale = Math.max(teslaResale, tPriceEff*0.18);  // floor
+    gasResale   = Math.max(gasResale,   gPrice*0.22);
+
+    // total spend (gross) and NET cost (after getting resale back).
+    // Tesla's charging line already includes the net home-charger setup (install minus MD rebate).
+    var gasSpend   = gPrice + gInterest + gasFuel + gasIns + gasMaint;     // down+prin = price
+    var teslaSpend = tPriceEff + tInterest + teslaFuel + teslaIns + teslaMaint;
+    var gasTotal   = gasSpend - gasResale;
+    var teslaTotal = teslaSpend - teslaResale;
+
+    // $9,200 cash car: older, higher miles, no financing, near-zero resale
+    var beaterPrice = 9200;
+    var beaterRepair = 2200*years;             // older + more miles = more repairs
+    var beaterFuel = (miles/24)*gas*years;     // ~24 mpg older sedan
+    var beaterIns = 1100*years;                // liability + minimal coverage
+    var beaterResale = Math.max(600, beaterPrice*0.05); // essentially nothing left
+    var beaterSpend = beaterPrice + beaterRepair + beaterFuel + beaterIns;
+    var beaterTotal = beaterSpend - beaterResale;
+
+    // ---- write control labels ----
+    el('vTPrice').textContent = fmt(tPrice);
+    el('vGPrice').textContent = fmt(gPrice);
+    el('vDown').textContent   = fmt(down);
+    el('vApr').textContent    = apr.toFixed(2)+'%';
+    el('vMiles').textContent  = fmt0(miles);
+    el('vYears').textContent  = years;
+    el('vGas').textContent    = '$'+gas.toFixed(2);
+
+    // ---- cards ----
+    el('teslaTotal').textContent = fmt(teslaTotal);
+    el('teslaInt').textContent   = fmt(tInterest);
+    el('teslaFuel').textContent  = fmt(teslaFuel);
+    el('teslaIns').textContent   = fmt(teslaIns);
+    el('teslaMaint').textContent = fmt(teslaMaint);
+    el('teslaResale').textContent = '+'+fmt(teslaResale);
+    el('teslaPmt').innerHTML     = fmt(tPmt)+'<small>&nbsp;/mo &times; '+months+'</small>';
+
+    el('gasTotal').textContent = fmt(gasTotal);
+    el('gasInt').textContent   = fmt(gInterest);
+    el('gasFuel').textContent  = fmt(gasFuel);
+    el('gasIns').textContent   = fmt(gasIns);
+    el('gasMaint').textContent = fmt(gasMaint);
+    el('gasResale').textContent = '+'+fmt(gasResale);
+    el('gasPmt').innerHTML     = fmt(gPmt)+'<small>&nbsp;/mo &times; '+months+'</small>';
+
+    el('beaterTotal').textContent = fmt(beaterTotal);
+    el('beaterRepair').textContent = fmt(beaterRepair);
+    el('beaterFuel').textContent = fmt(beaterFuel);
+    el('beaterIns').textContent = fmt(beaterIns);
+    el('beaterResale').textContent = '+'+fmt(beaterResale);
+
+    // ---- stacked chart ----
+    // scale all three bars to the largest GROSS spend
+    var maxSpend = Math.max(beaterSpend, gasSpend, teslaSpend);
+    el('axisMax').textContent = fmt(maxSpend);
+
+    function stack(containerId, segs){
+      var c = el(containerId);
+      c.innerHTML = '';
+      segs.forEach(function(s){
+        if(s.v <= 0) return;
+        var d = document.createElement('div');
+        d.className = 'seg-block '+s.cls;
+        d.style.width = (s.v/maxSpend*100)+'%';
+        d.title = s.name+': '+fmt(s.v);
+        c.appendChild(d);
+      });
+    }
+    // beater: purchase, (no interest), fuel, ins, repairs(maint)
+    stack('stackBeater', [
+      {name:'Purchase', v:beaterPrice, cls:'c-purchase'},
+      {name:'Fuel', v:beaterFuel, cls:'c-fuel'},
+      {name:'Insurance', v:beaterIns, cls:'c-ins'},
+      {name:'Repairs', v:beaterRepair, cls:'c-maint'}
+    ]);
+    stack('stackGas', [
+      {name:'Purchase', v:gPrice, cls:'c-purchase'},
+      {name:'Interest', v:gInterest, cls:'c-interest'},
+      {name:'Fuel', v:gasFuel, cls:'c-fuel'},
+      {name:'Insurance', v:gasIns, cls:'c-ins'},
+      {name:'Maintenance', v:gasMaint, cls:'c-maint'}
+    ]);
+    stack('stackTesla', [
+      {name:'Purchase', v:tPriceEff, cls:'c-purchase'},
+      {name:'Interest', v:tInterest, cls:'c-interest'},
+      {name:'Charging', v:teslaFuel, cls:'c-fuel'},
+      {name:'Insurance', v:teslaIns, cls:'c-ins'},
+      {name:'Maintenance', v:teslaMaint, cls:'c-maint'}
+    ]);
+    el('netBeater').textContent = fmt(beaterTotal);
+    el('netGas').textContent = fmt(gasTotal);
+    el('netTesla').textContent = fmt(teslaTotal);
+
+    // ---- verdict ----
+    var diff = teslaTotal - gasTotal;
+    var pill = el('verdictPill'), head = el('verdictHead'),
+        body = el('verdictBody'), brk = el('verdictBreak');
+
+    // annual running-cost saving of tesla vs gas (fuel+maint, ignoring higher ins)
+    var teslaRunYr = teslaFuel/years + teslaMaint/years + teslaIns/years;
+    var gasRunYr   = gasFuel/years + gasMaint/years + gasIns/years;
+    var runSaveYr  = gasRunYr - teslaRunYr; // positive = tesla cheaper to run
+
+    if(diff <= 0){
+      pill.style.background = 'var(--good)';
+      pill.textContent = 'Tesla wins';
+      head.textContent = 'Over '+years+' years, the used Tesla comes out cheaper by '+fmt(Math.abs(diff))+' net of resale.';
+      body.innerHTML = 'At this price and mileage, the charging and maintenance savings &mdash; plus the value the car still holds at the end &mdash; more than cover the higher purchase price and insurance. <strong>If the battery checks out, this is a good buy.</strong>';
+    } else {
+      pill.style.background = 'var(--signal)';
+      pill.textContent = 'Gas wins (for now)';
+      head.textContent = 'Over '+years+' years, the used Tesla costs about '+fmt(diff)+' more than the comparable gas car, net of resale.';
+      body.innerHTML = 'The Tesla is cheaper to run, but not quite enough to overcome its higher price and insurance at these settings. <strong>Lower the Tesla price, drive more miles, or keep it longer</strong> and the gap closes.';
+    }
+
+    // payback: how many years of running-cost savings to erase the upfront gap
+    if(runSaveYr > 0){
+      var upfrontGap = (tPriceEff+tInterest) - (gPrice+gInterest);
+      var payback = upfrontGap / runSaveYr;
+      if(payback > 0 && isFinite(payback)){
+        brk.innerHTML = 'Running-cost breakeven: the Tesla\u2019s lower fuel + upkeep pays back its higher purchase &amp; financing in about <strong>'+payback.toFixed(1)+' years</strong> of driving.';
+      } else {
+        brk.textContent = '';
+      }
+    } else {
+      brk.innerHTML = 'At these settings the Tesla isn\u2019t actually cheaper to run, so there\u2019s no payback \u2014 buy it for the experience, not the savings.';
+    }
+  }
+
+  // wire up sliders
+  ['tPrice','gPrice','down','apr','miles','years','gas'].forEach(function(id){
+    el(id).addEventListener('input', compute);
+  });
+  el('cpo').addEventListener('change', compute);
+  // term segmented control
+  var seg = el('termSeg');
+  seg.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){
+      seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      state.term = +b.dataset.t;
+      compute();
+    });
+  });
+
+  compute();
+})();
+</script>
+</body>
+</html>
