@@ -262,6 +262,14 @@
           <div class="td">Adds ~$2,000 to the Tesla price, but extends the warranty and cuts expected repair surprises &mdash; maintenance drops to near-zero. Reflects Tesla&rsquo;s factory-certified program.</div>
         </div>
       </div>
+
+      <div class="toggle-field">
+        <label class="switch"><input type="checkbox" id="diy"><span class="slider-sw"></span></label>
+        <div>
+          <div class="tl">Sergei does his own maintenance</div>
+          <div class="td">Most of a gas car&rsquo;s upkeep &mdash; oil, brakes, fluids, filters &mdash; is labor you can skip if you&rsquo;re handy. This cuts gas maintenance to roughly parts-only. It barely moves the Tesla, which has little routine work to DIY.</div>
+        </div>
+      </div>
     </div>
 
     <p class="note"><strong>Where the default prices come from:</strong> a June 2026 search of used listings near Indian Head, MD (20640). Local Teslas ranged from a 2019 Model 3 with 92K miles (~$12K) to a 2023 Model 3 (~$18.5K) and a 2021 Model Y (~$25.7K). Comparable gas sedans (2020&ndash;2021 Camry/Accord, similar mileage) averaged around $19&ndash;22K. These are starting points &mdash; replace them with the exact price of any car Sergei is actually looking at.</p>
@@ -544,6 +552,7 @@
     var miles  = +el('miles').value;
     var gas    = +el('gas').value;
     var cpo    = el('cpo').checked;
+    var diy    = el('diy').checked;
 
     // CPO adds ~$2,000 to the Tesla's price (certified premium) but de-risks maintenance
     var CPO_PREMIUM = 2000;
@@ -581,9 +590,11 @@
     var teslaIns = teslaInsYr*years;
 
     // maintenance per year
-    var gasMaintYr = 850;
-    // CPO warranty cuts expected repair surprises to near-zero; otherwise normal low EV upkeep (tires, cabin filter, wipers)
-    var teslaMaintYr = cpo ? 120 : 350;
+    // DIY removes shop labor (~55% of a typical gas bill), leaving roughly parts-only.
+    var gasMaintYr = diy ? 380 : 850;
+    // Tesla: CPO warranty already covers repairs (near-zero). Otherwise low EV upkeep (tires,
+    // cabin filter, wipers); DIY shaves only a little since there's little routine work to do.
+    var teslaMaintYr = cpo ? 120 : (diy ? 290 : 350);
     var gasMaint = gasMaintYr*years;
     var teslaMaint = teslaMaintYr*years;
 
@@ -731,6 +742,7 @@
     el(id).addEventListener('input', compute);
   });
   el('cpo').addEventListener('change', compute);
+  el('diy').addEventListener('change', compute);
   // term segmented control
   var seg = el('termSeg');
   seg.querySelectorAll('button').forEach(function(b){
